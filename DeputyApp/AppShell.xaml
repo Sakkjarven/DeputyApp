@@ -4,7 +4,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:DeputyApp.Pages"
     x:Class="DeputyApp.AppShell">
-
+    <ShellContent
+        Title="Login"
+        ContentTemplate="{DataTemplate local:LoginPage}"
+        Route="LoginPage" />
+        
     <ShellContent Title="Главная" ContentTemplate="{DataTemplate local:DashboardPage}" />
     <ShellContent Title="Расписание" ContentTemplate="{DataTemplate local:SchedulePage}" />
     <ShellContent Title="Документы" ContentTemplate="{DataTemplate local:DocumentsPage}" />

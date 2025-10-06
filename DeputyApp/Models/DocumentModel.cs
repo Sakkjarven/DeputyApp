@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace DeputyApp.Models
 {
-    internal class DocumentModel
+    public class DocumentModel
     {
+        public int Id { get; set; }
+        public string Title { get; set; } = "";
+        public string FilePath { get; set; } = "";
+        public DateTime UploadedAt { get; set; }
     }
 }
