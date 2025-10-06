@@ -7,7 +7,7 @@
 
     <ShellContent Title="Главная" ContentTemplate="{DataTemplate local:DashboardPage}" />
     <ShellContent Title="Расписание" ContentTemplate="{DataTemplate local:SchedulePage}" />
-    <ShellContent Title="Документы" ContentTemplate="{DataTemplate local:DocumentPage}" />
+    <ShellContent Title="Документы" ContentTemplate="{DataTemplate local:DocumentsPage}" />
     <ShellContent Title="Уведомления" ContentTemplate="{DataTemplate local:NotificationsPage}" />
 
 </Shell>

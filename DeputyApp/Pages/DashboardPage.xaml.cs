@@ -8,23 +8,23 @@ namespace DeputyApp.Pages
         }
         private async void GoToSchedule(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("//SchedulePage");
+            await Shell.Current.GoToAsync("SchedulePage");
         }
 
         private async void GoToDocuments(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("//DocumentsPage");
+            await Shell.Current.GoToAsync("DocumentsPage");
         }
 
         private async void GoToNotifications(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("//NotificationsPage");
+            await Shell.Current.GoToAsync("NotificationsPage");
         }
 
         private async void Logout(object sender, EventArgs e)
         {
             // ѕока просто возвращаем на страницу логина
-            await Shell.Current.GoToAsync("//LoginPage");
+            await Shell.Current.GoToAsync("LoginPage");
         }
     }
 }
