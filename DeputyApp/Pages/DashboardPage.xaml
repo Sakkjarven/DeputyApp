@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DeputyApp.Pages.DashboardPage"
+             Title="Dashboard">
+  <ScrollView>
+    <VerticalStackLayout Padding="20" Spacing="12">
+      <Label Text="Панель управления" FontSize="24" HorizontalOptions="Center" />
+      <Button Text="Расписание" Clicked="GoToSchedule" />
+      <Button Text="Документы" Clicked="GoToDocuments" />
+      <Button Text="Уведомления" Clicked="GoToNotifications" />
+      <Button Text="Выйти" Clicked="Logout" BackgroundColor="#FF3B30" TextColor="White" />
+    </VerticalStackLayout>
+  </ScrollView>
+</ContentPage>

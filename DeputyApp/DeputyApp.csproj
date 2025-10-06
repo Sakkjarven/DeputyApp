@@ -65,14 +65,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Pages\" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <MauiXaml Update="Pages\DashboardPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\DocumentsPage.xaml">
+	  <MauiXaml Update="Pages\DocumentPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\LoginPage.xaml">

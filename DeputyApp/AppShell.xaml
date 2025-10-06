@@ -1,14 +1,13 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<Shell
-    x:Class="DeputyApp.AppShell"
+<?xml version="1.0" encoding="utf-8" ?>
+    <Shell
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:DeputyApp"
-    Title="DeputyApp">
+    xmlns:local="clr-namespace:DeputyApp.Pages"
+    x:Class="DeputyApp.AppShell">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <ShellContent Title="Главная" ContentTemplate="{DataTemplate local:DashboardPage}" />
+    <ShellContent Title="Расписание" ContentTemplate="{DataTemplate local:SchedulePage}" />
+    <ShellContent Title="Документы" ContentTemplate="{DataTemplate local:DocumentPage}" />
+    <ShellContent Title="Уведомления" ContentTemplate="{DataTemplate local:NotificationsPage}" />
 
 </Shell>
