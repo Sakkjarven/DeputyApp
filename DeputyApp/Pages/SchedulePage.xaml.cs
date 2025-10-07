@@ -1,9 +1,13 @@
-namespace DeputyApp.Pages;
+using DeputyApp.Services;
 
-public partial class SchedulePage : ContentPage
+namespace DeputyApp.Pages
 {
-	public SchedulePage()
-	{
-		InitializeComponent();
-	}
+    public partial class SchedulePage : ContentPage
+    {
+        public SchedulePage()
+        {
+            InitializeComponent();
+            ScheduleList.ItemsSource = TestDataService.GetSchedule();
+        }
+    }
 }

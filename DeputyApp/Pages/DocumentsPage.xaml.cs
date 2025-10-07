@@ -1,9 +1,13 @@
-namespace DeputyApp.Pages;
+using DeputyApp.Services;
 
-public partial class DocumentsPage : ContentPage
+namespace DeputyApp.Pages
 {
-    public DocumentsPage()
+    public partial class DocumentsPage : ContentPage
     {
-        InitializeComponent();
+        public DocumentsPage()
+        {
+            InitializeComponent();
+            DocsList.ItemsSource = TestDataService.GetDocuments();
+        }
     }
 }
