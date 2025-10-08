@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>DeputyApp — мобильная версия (v7)</title>
+<style>
+:root{
+  --bg1:#04122b; --bg2:#072342;
+  --muted:#9fb0c8; --accent:#63a9ff; --text:#e9f4ff;
+  --card: rgba(255,255,255,0.03);
+  --glass-border: rgba(255,255,255,0.04);
+  --modal-bg: rgba(2,6,12,0.96);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", system-ui, Arial; -webkit-font-smoothing:antialiased;background: linear-gradient(180deg,var(--bg1),var(--bg2)); color:var(--text);}
+
+/* header */
+.header{position:fixed;left:0;right:0;top:0;height:72px;display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.03);backdrop-filter:blur(8px);z-index:120}
+.logo{display:flex;align-items:center;gap:10px}
+#coatIcon{width:38px;height:38px;border-radius:6px;box-shadow:0 8px 24px rgba(3,22,45,0.6);filter:drop-shadow(0 8px 20px rgba(99,169,255,0.22));background:transparent}
+.title{font-weight:800;font-size:18px;display:flex;align-items:center;gap:8px}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.role-pill{background:rgba(255,255,255,0.02);padding:6px 10px;border-radius:10px;font-weight:700;color:var(--muted)}
+
+/* header avatar */
+.header-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,0.04);cursor:pointer;box-shadow:0 8px 20px rgba(2,6,20,0.6)}
+
+/* app root */
+.app-root{max-width:980px;margin:0 auto;min-height:100vh;padding-bottom:80px}
+
+/* info block */
+.info-block{margin:12px;border-radius:14px;padding:12px 16px;background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:space-between;gap:12px;backdrop-filter:blur(6px)}
+.date-main{font-weight:800;font-size:16px}
+.weekday{color:var(--muted)}
+
+/* tiles list */
+.tiles{display:flex;flex-direction:column;gap:14px;padding:12px}
+.tile{background:var(--card);padding:16px;border-radius:14px;display:flex;gap:14px;align-items:center;border:1px solid var(--glass-border);cursor:pointer;transition:all .12s ease;box-shadow:0 10px 30px rgba(2,6,20,0.45);backdrop-filter:blur(6px)}
+.tile .ico{width:54px;height:54px;border-radius:12px;background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center}
+.tile .meta .t{font-weight:800;font-size:16px}
+.tile .meta .s{color:var(--muted);font-size:13px;margin-top:6px}
+.tile:hover{transform:translateY(-4px);background:rgba(255,255,255,0.04)}
+.tile.active{background:linear-gradient(90deg, rgba(99,169,255,0.09), rgba(99,169,255,0.03));border-color:rgba(99,169,255,0.14)}
+
+/* screens */
+.screen{display:none;position:relative;left:0;right:0;top:0;bottom:0;padding:12px 16px 40px 16px;overflow:auto}
+.screen.active{display:block}
+
+/* schedule */
+.week-row{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.day-pill{padding:8px 10px;border-radius:10px;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.02);color:var(--muted);font-weight:700;cursor:pointer}
+.day-pill.sel{background:linear-gradient(90deg, rgba(99,169,255,0.12), rgba(99,169,255,0.06));color:var(--text)}
+
+.sched-list{display:flex;flex-direction:column;gap:12px;padding-bottom:120px}
+.sched-card{background:rgba(255,255,255,0.02);padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.02);box-shadow:0 8px 30px rgba(2,6,20,0.45)}
+.sched-top{display:flex;justify-content:space-between;align-items:flex-start}
+.time-left{color:var(--muted);font-weight:700}
+.badge-type{background:rgba(255,255,255,0.04);padding:6px 10px;border-radius:10px;font-weight:700}
+
+/* modal */
+.modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.72);display:none;align-items:center;justify-content:center;z-index:170;backdrop-filter:blur(6px)}
+.modal-back.show{display:flex}
+.modal{width:min(720px,94%);background:var(--modal-bg);padding:18px;border-radius:12px;color:var(--text);box-shadow:0 30px 80px rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.03)}
+
+/* inputs and buttons */
+input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text);margin-bottom:8px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:0;cursor:pointer;background:rgba(255,255,255,0.03);color:var(--text);font-weight:700}
+.btn-primary{background:linear-gradient(90deg,#1f6fca,#3aa0ff);color:white}
+.small{font-size:13px;color:var(--muted)}
+
+/* back button for inner pages */
+.back-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;border:0;cursor:pointer;background:rgba(255,255,255,0.02);color:var(--text);font-weight:700;margin-bottom:8px}
+
+/* login page */
+.login-page{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(2,6,12,0.96), rgba(2,6,12,0.99));z-index:200}
+.login-card{width:92%;max-width:480px;border-radius:14px;padding:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid var(--glass-border);box-shadow:0 30px 90px rgba(0,0,0,0.7)}
+
+/* responsive tweaks */
+@media(min-width:760px){ .tiles{flex-direction:row;flex-wrap:wrap} .tile{min-width:220px;flex:1} }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header" role="banner">
+  <div class="logo" style="align-items:center">
+    <img id="coatIcon" src="https://upload.wikimedia.org/wikipedia/commons/2/2b/Coat_of_Arms_of_Sverdlovsk_Oblast.svg" alt="герб">
+    <div class="title">DeputyApp</div>
+  </div>
+  <div class="header-right">
+    <div id="rolePill" class="role-pill">Гость</div>
+    <img id="headerAvatar" class="header-avatar" src="" alt="avatar" title="Профиль" style="display:none" />
+    <button id="logoutBtn" class="btn" style="display:none">Выйти</button>
+  </div>
+</div>
+
+<!-- Login page (full screen) -->
+<div id="loginPage" class="login-page" role="main">
+  <div class="login-card" role="dialog" aria-modal="true">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div><div style="font-weight:800;font-size:20px">Вход в DeputyApp</div><div class="small" style="margin-top:6px;color:var(--muted)">Введите выданные вручную логин и пароль</div></div>
+      <div class="small" style="color:var(--muted)">Демо</div>
+    </div>
+    <div style="margin-top:12px">
+      <input id="loginUser" placeholder="Логин" autocomplete="username" />
+      <input id="loginPass" placeholder="Пароль" type="password" autocomplete="current-password" />
+      <div id="loginError" class="small" style="color:#ff8b8b;display:none;margin-bottom:8px"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="guestLogin" class="btn">Гостевой вход</button>
+        <button id="doLoginBtn" class="btn btn-primary">Войти</button>
+      </div>
+      <div style="margin-top:10px" class="small">Учётки: <b>superadmin/admin123</b>, <b>deputy1/dep123</b>, <b>assistant1/assist123</b></div>
+    </div>
+  </div>
+</div>
+
+<!-- App root (shown after login) -->
+<div id="app" style="display:none">
+  <div class="app-root" id="appRoot">
+    <div id="homeScreen" class="screen active" aria-hidden="false">
+      <div class="info-block">
+        <div>
+          <div id="topDate" class="date-main">8 октября 2025</div>
+          <div id="topWeekday" class="weekday">Среда</div>
+        </div>
+        <div id="nextEvent" style="cursor:pointer;text-align:right">
+          <div class="small" style="color:var(--muted)">Ближайшее мероприятие</div>
+          <div id="nextTitle" style="font-weight:800">Отсутствует</div>
+        </div>
+      </div>
+
+      <div id="tiles" class="tiles" aria-live="polite"></div>
+    </div>
+
+    <!-- My schedule screen -->
+    <div id="myscheduleScreen" class="screen" aria-hidden="true">
+      <button class="back-btn" onclick="showScreen('home')">← Назад</button>
+      <div style="font-weight:800;font-size:18px;margin-bottom:8px">Моё расписание</div>
+      <div id="weekRow" class="week-row"></div>
+      <div id="schedList" class="sched-list"></div>
+      <div style="margin-top:12px">
+        <button id="addMyEvent" class="btn btn-primary" style="display:none">Добавить событие</button>
+      </div>
+    </div>
+
+    <!-- All schedule screen -->
+    <div id="allscheduleScreen" class="screen" aria-hidden="true">
+      <button class="back-btn" onclick="showScreen('home')">← Назад</button>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:800;font-size:18px">Расписание аппарата</div>
+        <div id="adminSelectWrap" style="display:none"><select id="adminOwnerSelect"></select></div>
+      </div>
+      <div id="weekRowAll" class="week-row"></div>
+      <div id="schedListAll" class="sched-list"></div>
+      <div style="margin-top:12px">
+        <button id="addAllEvent" class="btn btn-primary" style="display:none">Добавить событие</button>
+      </div>
+    </div>
+
+    <!-- Documents screen -->
+    <div id="documentsScreen" class="screen" aria-hidden="true">
+      <button class="back-btn" onclick="showScreen('home')">← Назад</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-weight:800;font-size:18px">Документы</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="docFilter"><option value="">Все</option><option value="Word">Word</option><option value="Excel">Excel</option><option value="Presentation">Presentation</option><option value="PDF">PDF</option><option value="Other">Другое</option></select>
+          <button id="uploadBtn" class="btn btn-primary" style="display:none">📤 Загрузить файл</button>
+        </div>
+      </div>
+      <div id="docsList"></div>
+      <input id="fileInput" type="file" style="display:none" multiple />
+    </div>
+
+    <!-- Cabinet screen -->
+    <div id="cabinetScreen" class="screen" aria-hidden="true">
+      <button class="back-btn" onclick="showScreen('home')">← Назад</button>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:800;font-size:18px">Личный кабинет</div>
+        <div id="cabinetRole" class="small" style="color:var(--muted)"></div>
+      </div>
+      <div id="cabinetContent" style="margin-top:12px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- modal root -->
+<div id="modalRoot" class="modal-back" aria-hidden="true"><div id="modalBox" class="modal"></div></div>
+
+<script>
+// v7 — final fixes: offset, avatar in header clickable, coat glow, upload button visible
+const USR='DeputyApp_usr_v7', EVT='DeputyApp_evt_v7', DOC='DeputyApp_doc_v7', AVA='DeputyApp_ava_v7', SESS='DeputyApp_sess_v7';
+function genId(){ return 'id_'+Math.random().toString(36).slice(2,9); }
+function seedIfEmpty(){
+  if(!localStorage.getItem(USR)){
+    const u=[
+      {id:genId(),username:'superadmin',password:'admin123',role:'SuperAdmin',display:'СуперАдмин'},
+      {id:genId(),username:'deputy1',password:'dep123',role:'Deputy',display:'Депутат Иванов'},
+      {id:genId(),username:'assistant1',password:'assist123',role:'Assistant',display:'Помощник Петров',deputyUsername:'deputy1'}
+    ];
+    localStorage.setItem(USR,JSON.stringify(u));
+  }
+  if(!localStorage.getItem(EVT)){
+    const users=JSON.parse(localStorage.getItem(USR)); const deputy=users.find(x=>x.role==='Deputy');
+    const todayIdx = (new Date()).getDay()===0?7:(new Date()).getDay();
+    const ev=[
+      {id:genId(),title:'Совещание аппарата',desc:'Планирование задач',day:1,start:'09:00',end:'11:00',owner:null,type:'Совещание'},
+      {id:genId(),title:'Приём граждан',desc:'Приём избирателей',day:3,start:'14:00',end:'16:00',owner:(deputy?deputy.id:null),type:'Приём'},
+      {id:genId(),title:'Демо-событие',desc:'Ближайшее событие',day:todayIdx,start:'23:59',end:'23:59',owner:(deputy?deputy.id:null),type:'Приём'}
+    ];
+    localStorage.setItem(EVT,JSON.stringify(ev));
+  }
+  if(!localStorage.getItem(DOC)) localStorage.setItem(DOC,JSON.stringify([]));
+  if(!localStorage.getItem(AVA)) localStorage.setItem(AVA,JSON.stringify({}));
+}
+seedIfEmpty();
+
+const getUsers=()=>JSON.parse(localStorage.getItem(USR)||'[]'), saveUsers=v=>localStorage.setItem(USR,JSON.stringify(v));
+const getEvents=()=>JSON.parse(localStorage.getItem(EVT)||'[]'), saveEvents=v=>localStorage.setItem(EVT,JSON.stringify(v));
+const getDocs=()=>JSON.parse(localStorage.getItem(DOC)||'[]'), saveDocs=v=>localStorage.setItem(DOC,JSON.stringify(v));
+const getAvatars=()=>JSON.parse(localStorage.getItem(AVA)||'{}'), saveAvatars=v=>localStorage.setItem(AVA,JSON.stringify(v));
+const saveSession=v=>localStorage.setItem(SESS,JSON.stringify(v)), getSession=()=>JSON.parse(localStorage.getItem(SESS)||'null'), clearSession=()=>localStorage.removeItem(SESS);
+const esc=s=>s==null?'':String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// DOM refs
+const loginPage = document.getElementById('loginPage'), doLoginBtn = document.getElementById('doLoginBtn'), guestLogin = document.getElementById('guestLogin');
+const loginUser = document.getElementById('loginUser'), loginPass = document.getElementById('loginPass'), loginError = document.getElementById('loginError');
+const app = document.getElementById('app'), tilesRoot = document.getElementById('tiles'), topDate = document.getElementById('topDate'), topWeekday = document.getElementById('topWeekday'), nextTitle = document.getElementById('nextTitle');
+const rolePill = document.getElementById('rolePill'), logoutBtn = document.getElementById('logoutBtn'), headerAvatar = document.getElementById('headerAvatar');
+const appRoot = document.getElementById('appRoot'), coatIcon = document.getElementById('coatIcon');
+const screens = {
+  home: document.getElementById('homeScreen'),
+  myschedule: document.getElementById('myscheduleScreen'),
+  allschedule: document.getElementById('allscheduleScreen'),
+  documents: document.getElementById('documentsScreen'),
+  cabinet: document.getElementById('cabinetScreen')
+};
+const weekRow = document.getElementById('weekRow'), schedList = document.getElementById('schedList');
+const weekRowAll = document.getElementById('weekRowAll'), schedListAll = document.getElementById('schedListAll');
+const docsList = document.getElementById('docsList'), docFilter = document.getElementById('docFilter');
+const addMyEvent = document.getElementById('addMyEvent'), addAllEvent = document.getElementById('addAllEvent');
+const fileInput = document.getElementById('fileInput'), uploadBtn = document.getElementById('uploadBtn');
+const adminSelectWrap = document.getElementById('adminSelectWrap'), adminOwnerSelect = document.getElementById('adminOwnerSelect');
+const cabinetContent = document.getElementById('cabinetContent'), cabinetRole = document.getElementById('cabinetRole');
+
+let currentUser = getSession() || null;
+let lastOpenedEventId = null;
+
+// helpers
+function adjustContentOffset(){
+  // ensure content starts below header (avoid overlap)
+  const header = document.querySelector('.header');
+  const h = header ? header.offsetHeight : 72;
+  appRoot.style.paddingTop = (h + 8) + 'px';
+}
+function updateDocumentControls(){
+  if(!currentUser || currentUser.role === 'Guest'){ uploadBtn.style.display='none'; fileInput.disabled=true; } else { uploadBtn.style.display='inline-flex'; fileInput.disabled=false; }
+}
+
+// init UI
+function initUI(){
+  document.getElementById('nextEvent').addEventListener('click', navigateToNextEvent);
+  doLoginBtn.addEventListener('click', doLoginHandler);
+  guestLogin.addEventListener('click', ()=> { currentUser = {id:'guest', username:'guest', role:'Guest', display:'Гость'}; saveSession(currentUser); afterLogin(); });
+  loginPass.addEventListener('keydown', (e)=> { if(e.key==='Enter') doLoginHandler(); });
+  docFilter.addEventListener('change', renderDocs);
+  logoutBtn.addEventListener('click', ()=> { logout(); });
+  headerAvatar.addEventListener('click', ()=> showScreen('cabinet'));
+  uploadBtn.addEventListener('click', ()=> fileInput.click());
+  fileInput.addEventListener('change', handleFileUpload);
+  addMyEvent.addEventListener('click', ()=> openAddEventForCurrentUser());
+  addAllEvent.addEventListener('click', ()=> openAddEventForApp());
+  window.addEventListener('resize', adjustContentOffset);
+  renderTopDate(); renderNextEvent();
+}
+
+// login
+function doLoginHandler(){
+  loginError.style.display='none';
+  const u = (loginUser.value||'').trim(), p = (loginPass.value||'').trim();
+  if(!u){ loginError.textContent='Введите логин'; loginError.style.display='block'; return; }
+  const user = getUsers().find(x=> x.username.toLowerCase() === u.toLowerCase());
+  if(!user || user.password !== p){ loginError.textContent='Неверный логин или пароль'; loginError.style.display='block'; return; }
+  currentUser = user; saveSession(user); afterLogin();
+}
+
+function afterLogin(){
+  try{ loginPage.remove(); }catch(e){ loginPage.style.display='none'; }
+  app.style.display='block';
+  adjustContentOffset();
+  setupHeader();
+  buildTilesForRole(currentUser.role);
+  updateDocumentControls();
+  showScreen('home');
+  renderTopDate(); renderNextEvent();
+}
+
+// header setup
+function setupHeader(){
+  rolePill.textContent = currentUser.role || 'Гость';
+  logoutBtn.style.display = 'inline-block';
+  headerAvatar.style.display='inline-block';
+  // set avatar image if saved
+  const avs = getAvatars(); const img = avs[currentUser.id];
+  if(img) headerAvatar.src = img; else headerAvatar.src = ''; // if empty -> display nothing, but still visible; we'll show default styling via CSS
+  // coat glow already in CSS
+}
+
+// logout
+function logout(){ clearSession(); location.reload(); }
+
+// tiles builder
+function buildTilesForRole(role){
+  tilesRoot.innerHTML='';
+  function add(id, title, desc, svg){
+    const el = document.createElement('div'); el.className='tile'; el.dataset.id=id;
+    el.innerHTML = `<div class="ico">${svg}</div><div class="meta"><div class="t">${title}</div><div class="s">${desc}</div></div>`;
+    el.addEventListener('click', ()=> { document.querySelectorAll('.tile').forEach(t=>t.classList.remove('active')); el.classList.add('active'); openSection(id); });
+    tilesRoot.appendChild(el);
+  }
+  const icoSchedule = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/><path d="M8 2v4M16 2v4" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/></svg>';
+  const icoDocs = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="6" y="3" width="9" height="18" rx="1.5" stroke="rgba(255,255,255,0.6)"/></svg>';
+  const icoUser = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="2" stroke="rgba(255,255,255,0.6)"/></svg>';
+  if(role === 'Deputy' || role === 'Assistant'){
+    add('myschedule','Моё расписание','Просмотр/редактирование', icoSchedule);
+    add('allschedule','Расписание аппарата','Общие события', icoSchedule);
+    add('documents','Документы','Приказы и таблицы', icoDocs);
+    add('cabinet','Личный кабинет','Профиль и аватар', icoUser);
+  } else if(role === 'SuperAdmin'){
+    add('allschedule','Расписание аппарата','Редактирование аппарата', icoSchedule);
+    add('documents','Документы','Управление', icoDocs);
+    add('users','Пользователи','Создание логинов','<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3" stroke="rgba(255,255,255,0.6)"/></svg>');
+    add('cabinet','Личный кабинет','Профиль', icoUser);
+  } else {
+    add('allschedule','Расписание аппарата','Общие события', icoSchedule);
+    add('documents','Документы','Просмотр', icoDocs);
+    add('cabinet','Личный кабинет','Гость', icoUser);
+  }
+}
+
+// open section
+function openSection(id){
+  if(id === 'myschedule') showScreen('myschedule');
+  else if(id === 'allschedule') showScreen('allschedule');
+  else if(id === 'documents') showScreen('documents');
+  else if(id === 'cabinet') showScreen('cabinet');
+  else if(id === 'users') alert('Пользователи (админ)');
+}
+
+// show screen
+function showScreen(key){
+  for(const k in screens){
+    screens[k].classList.remove('active');
+    screens[k].setAttribute('aria-hidden','true');
+  }
+  const target = screens[key] || screens.home;
+  target.classList.add('active');
+  target.setAttribute('aria-hidden','false');
+  if(key === 'myschedule') renderMySchedulePage();
+  if(key === 'allschedule') renderAllSchedulePage();
+  if(key === 'documents') renderDocs();
+  if(key === 'cabinet') renderCabinet();
+  window.scrollTo(0,0);
+}
+
+// compute next event
+function computeNextRelevantOccurrence(){
+  const events = getEvents();
+  if(!events.length) return null;
+  const now = new Date();
+  const occurrences = [];
+  for(const ev of events){
+    const [hs, ms] = (ev.start||'00:00').split(':').map(Number);
+    const [eh, em] = (ev.end||ev.start||'00:00').split(':').map(Number);
+    const todayIdx = now.getDay()===0?7:now.getDay();
+    let delta = Number(ev.day) - todayIdx; if(delta < 0) delta += 7;
+    let evStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()+delta, hs||0, ms||0, 0);
+    let evEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate()+delta, eh||0, em||0, 0);
+    if(evEnd < now){ evStart.setDate(evStart.getDate()+7); evEnd.setDate(evEnd.getDate()+7); }
+    occurrences.push({ev, evStart, evEnd});
+  }
+  let cand = occurrences.filter(o=> o.evEnd >= now);
+  if(!cand.length) return null;
+  cand.sort((a,b)=> a.evStart - b.evStart);
+  return cand[0];
+}
+
+function renderNextEvent(){ const n = computeNextRelevantOccurrence(); if(!n){ nextTitle.textContent='Отсутствует'; lastOpenedEventId = null; return; } nextTitle.textContent = `${n.ev.title} · ${n.ev.start}`; lastOpenedEventId = n.ev.id; }
+
+function navigateToNextEvent(){
+  if(!lastOpenedEventId) return;
+  const ev = getEvents().find(x=>x.id===lastOpenedEventId); if(!ev) return;
+  if(ev.owner){
+    const ownerUser = getUsers().find(u=>u.id===ev.owner);
+    if(ownerUser){
+      // if personal event — open personal schedule if permitted otherwise open apparatus
+      if(currentUser && (currentUser.role==='SuperAdmin' || (currentUser.role==='Deputy' && currentUser.id===ev.owner) || (currentUser.role==='Assistant' && currentUser.deputyUsername && ownerUser.username===currentUser.deputyUsername))){
+        showScreen('myschedule');
+        setTimeout(()=> highlightEvent(ev.id), 120);
+        return;
+      }
+    }
+  }
+  showScreen('allschedule');
+  setTimeout(()=> highlightEvent(ev.id), 120);
+}
+
+function highlightEvent(evId){
+  const all = document.querySelectorAll('.sched-card[data-id]');
+  all.forEach(n=> n.style.outline='0');
+  const el = document.querySelector('.sched-card[data-id="'+evId+'"]');
+  if(el){ el.style.outline='2px solid rgba(99,169,255,0.28)'; el.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(()=> el.style.outline='0', 2200); }
+}
+
+// schedule render/edit
+function parseTime(t){ if(!t) return 0; const p=t.split(':').map(Number); return (p[0]||0)*60 + (p[1]||0); }
+function muted(text){ const d = document.createElement('div'); d.className='small'; d.textContent = text; return d; }
+
+function renderMySchedulePage(){
+  buildWeekRow(weekRow, (day)=> renderScheduleFor(day, true));
+  renderScheduleForSelected();
+  addMyEvent.style.display = currentUser && (currentUser.role==='Deputy' || currentUser.role==='SuperAdmin' || currentUser.role==='Assistant') ? 'inline-block' : 'none';
+}
+
+function renderAllSchedulePage(){
+  buildWeekRow(weekRowAll, (day)=> renderScheduleForAll(day));
+  renderAllForSelected();
+  addAllEvent.style.display = currentUser && currentUser.role==='SuperAdmin' ? 'inline-block' : 'none';
+  if(currentUser && currentUser.role==='SuperAdmin'){
+    adminSelectWrap.style.display='block';
+    adminOwnerSelect.innerHTML=''; const deps = getUsers().filter(u=>u.role==='Deputy'); adminOwnerSelect.appendChild(new Option('— общие события —',''));
+    deps.forEach(d=> adminOwnerSelect.appendChild(new Option(d.display+' ('+d.username+')', d.id)));
+  } else { adminSelectWrap.style.display='none'; }
+}
+
+function buildWeekRow(container, onDayClick){
+  container.innerHTML='';
+  const now = new Date(); const dow = now.getDay()===0?7:now.getDay(); const mon = new Date(now); mon.setDate(now.getDate() - (dow -1));
+  for(let i=1;i<=7;i++){
+    const pill = document.createElement('div'); pill.className='day-pill'; pill.dataset.day = i;
+    const d = new Date(mon); d.setDate(mon.getDate() + (i-1));
+    pill.innerHTML = `<div style="font-weight:700">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'][i-1]}</div><div class="small" style="color:var(--muted)">${d.getDate()}</div>`;
+    pill.addEventListener('click', ()=> { container.querySelectorAll('.day-pill').forEach(x=>x.classList.remove('sel')); pill.classList.add('sel'); onDayClick(i); });
+    container.appendChild(pill);
+  }
+  const today = (new Date()).getDay()===0?7:(new Date()).getDay();
+  const sel = container.querySelector(`[data-day="${today}"]`); if(sel) sel.classList.add('sel');
+}
+
+function renderScheduleForSelected(){ const day = weekRow.querySelector('.day-pill.sel') ? Number(weekRow.querySelector('.day-pill.sel').dataset.day) : ((new Date()).getDay()===0?7:(new Date()).getDay()); renderScheduleFor(day, true); }
+function renderAllForSelected(){ const day = weekRowAll.querySelector('.day-pill.sel') ? Number(weekRowAll.querySelector('.day-pill.sel').dataset.day) : ((new Date()).getDay()===0?7:(new Date()).getDay()); renderScheduleForAll(day); }
+
+function renderScheduleFor(day, personalOnly){
+  schedList.innerHTML='';
+  let evs = getEvents().filter(e=> Number(e.day) === Number(day));
+  if(personalOnly){
+    if(!currentUser) evs = evs.filter(e=>!e.owner);
+    else if(currentUser.role==='Deputy') evs = evs.filter(e=> !e.owner || e.owner === currentUser.id);
+    else if(currentUser.role==='Assistant'){ const dep = getUsers().find(u=>u.role==='Deputy' && u.username===currentUser.deputyUsername); evs = evs.filter(e=> !e.owner || e.owner === (dep?dep.id:null)); }
+    else evs = evs.filter(e=>!e.owner);
+  } else {
+    if(!currentUser || currentUser.role !== 'SuperAdmin') evs = evs.filter(e=>!e.owner);
+  }
+  evs.sort((a,b)=> parseTime(a.start) - parseTime(b.start));
+  if(!evs.length){ schedList.appendChild(muted('Событий нет')); return; }
+  evs.forEach(ev=>{
+    const card = document.createElement('div'); card.className='sched-card'; card.dataset.id = ev.id;
+    const top = document.createElement('div'); top.className='sched-top'; top.innerHTML = `<div class="time-left">${esc(ev.start)} — ${esc(ev.end)}</div><div class="badge-type small">${esc(ev.type||'Событие')}</div>`;
+    card.appendChild(top);
+    const title = document.createElement('div'); title.style.fontWeight='800'; title.style.color='var(--accent)'; title.textContent = ev.title; title.addEventListener('click', ()=> openEventView(ev));
+    card.appendChild(title);
+    if(ev.desc){ const d = document.createElement('div'); d.className='small'; d.textContent = ev.desc; card.appendChild(d); }
+    const canEdit = currentUser && (currentUser.role==='SuperAdmin' || (currentUser.role==='Deputy' && ev.owner===currentUser.id) || (currentUser.role==='Assistant' && currentUser.deputyUsername && getUsers().find(u=>u.username===currentUser.deputyUsername)?.id===ev.owner));
+    if(canEdit){
+      const controls = document.createElement('div'); controls.style.marginTop='8px'; controls.style.display='flex'; controls.style.gap='8px';
+      const btnEdit = document.createElement('button'); btnEdit.className='btn'; btnEdit.textContent='Ред.'; btnEdit.addEventListener('click', ()=> openEditEvent(ev.id));
+      const btnDel = document.createElement('button'); btnDel.className='btn'; btnDel.textContent='Удал.'; btnDel.addEventListener('click', ()=> { if(confirm('Удалить событие?')){ saveEvents(getEvents().filter(x=>x.id!==ev.id)); renderScheduleForSelected(); renderAllSchedulePage(); renderNextEvent(); } });
+      controls.appendChild(btnEdit); controls.appendChild(btnDel); card.appendChild(controls);
+    }
+    schedList.appendChild(card);
+  });
+}
+
+function renderScheduleForAll(day){
+  schedListAll.innerHTML='';
+  let evs = getEvents().filter(e=> Number(e.day) === Number(day));
+  evs.sort((a,b)=> parseTime(a.start) - parseTime(b.start));
+  if(!evs.length){ schedListAll.appendChild(muted('Событий нет')); return; }
+  evs.forEach(ev=>{
+    const card = document.createElement('div'); card.className='sched-card'; card.dataset.id = ev.id;
+    const top = document.createElement('div'); top.className='sched-top'; top.innerHTML = `<div class="time-left">${esc(ev.start)} — ${esc(ev.end)}</div><div class="badge-type small">${esc(ev.type||'Событие')}</div>`;
+    card.appendChild(top);
+    const title = document.createElement('div'); title.style.fontWeight='800'; title.textContent = ev.title; title.addEventListener('click', ()=> openEventView(ev));
+    card.appendChild(title);
+    if(ev.desc){ const d = document.createElement('div'); d.className='small'; d.textContent = ev.desc; card.appendChild(d); }
+    if(currentUser && currentUser.role==='SuperAdmin'){
+      const controls = document.createElement('div'); controls.style.marginTop='8px'; controls.style.display='flex'; controls.style.gap='8px';
+      const btnEdit = document.createElement('button'); btnEdit.className='btn'; btnEdit.textContent='Ред.'; btnEdit.addEventListener('click', ()=> openEditEvent(ev.id));
+      const btnDel = document.createElement('button'); btnDel.className='btn'; btnDel.textContent='Удал.'; btnDel.addEventListener('click', ()=> { if(confirm('Удалить событие?')){ saveEvents(getEvents().filter(x=>x.id!==ev.id)); renderAllSchedulePage(); renderNextEvent(); } });
+      controls.appendChild(btnEdit); controls.appendChild(btnDel); card.appendChild(controls);
+    }
+    schedListAll.appendChild(card);
+  });
+}
+
+// add/edit events
+function openAddEvent(day, ownerId){
+  const html = `<div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:800">Добавить событие</div><div><button class="btn" onclick="closeModal()">✕</button></div></div><div style="margin-top:8px"><label>Название<input id="nTitle"></label><label>Описание<textarea id="nDesc"></textarea></label><label>День (1-Пн..7-Вс)<input id="nDay" value="${day||1}"></label><label>Начало<input id="nStart" value="08:00"></label><label>Конец<input id="nEnd" value="10:00"></label><label>Тип<input id="nType" value="Приём"></label></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px"><button class="btn btn-primary" onclick="saveNewEvent('${ownerId||''}')">Сохранить</button><button class="btn" onclick="closeModal()">Отмена</button></div>`;
+  openModal(html);
+}
+function openAddEventForCurrentUser(){ const day = ((new Date()).getDay()===0?7:(new Date()).getDay()); openAddEvent(day, currentUser.id); }
+function openAddEventForApp(){ const owner = adminOwnerSelect.value || ''; openAddEvent(null, owner || null); }
+function saveNewEvent(ownerId){ const title=document.getElementById('nTitle').value.trim(); if(!title){ alert('Введите название'); return; } const desc=document.getElementById('nDesc').value.trim(); const day=Number(document.getElementById('nDay').value); const start=document.getElementById('nStart').value.trim(); const end=document.getElementById('nEnd').value.trim(); const type=document.getElementById('nType').value.trim(); const ev={id:genId(),title,desc,day,start,end,owner: ownerId||null,type}; const arr=getEvents(); arr.push(ev); saveEvents(arr); closeModal(); renderMySchedulePage(); renderAllSchedulePage(); renderNextEvent(); }
+
+function openEditEvent(evId){
+  const ev = getEvents().find(x=>x.id===evId); if(!ev) return;
+  const html = `<div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:800">Редактировать событие</div><div><button class="btn" onclick="closeModal()">✕</button></div></div><div style="margin-top:8px"><label>Название<input id="eTitle" value="${esc(ev.title)}"></label><label>Описание<textarea id="eDesc">${esc(ev.desc||'')}</textarea></label><label>День (1-Пн..7-Вс)<input id="eDay" value="${ev.day}"></label><label>Начало<input id="eStart" value="${ev.start}"></label><label>Конец<input id="eEnd" value="${ev.end}"></label><label>Тип<input id="eType" value="${esc(ev.type||'Приём')}"></label></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px"><button class="btn btn-primary" onclick="saveEditEvent('${ev.id}')">Сохранить</button><button class="btn" onclick="closeModal()">Отмена</button></div>`;
+  openModal(html);
+}
+function saveEditEvent(evId){ const evs=getEvents(); const ev=evs.find(x=>x.id===evId); if(!ev) return; ev.title=document.getElementById('eTitle').value.trim(); ev.desc=document.getElementById('eDesc').value.trim(); ev.day=Number(document.getElementById('eDay').value); ev.start=document.getElementById('eStart').value.trim(); ev.end=document.getElementById('eEnd').value.trim(); ev.type=document.getElementById('eType').value.trim(); saveEvents(evs); closeModal(); renderMySchedulePage(); renderAllSchedulePage(); renderNextEvent(); }
+
+function openEventView(ev){
+  const owner = ev.owner ? getUsers().find(u=>u.id===ev.owner)?.display || 'Персонально' : 'Общее';
+  const canEdit = currentUser && (currentUser.role==='SuperAdmin' || (currentUser.role==='Deputy' && ev.owner===currentUser.id) || (currentUser.role==='Assistant' && currentUser.deputyUsername && getUsers().find(u=>u.username===currentUser.deputyUsername)?.id===ev.owner));
+  const html = `<div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:800">${esc(ev.title)}</div><div class="small" style="color:var(--muted)">${esc(ev.start)} — ${esc(ev.end)}</div></div><div><button class="btn" onclick="closeModal()">Закрыть</button></div></div><div style="margin-top:10px" class="small">${esc(ev.desc||'')}</div><div style="margin-top:8px" class="small">Владелец: ${esc(owner)}</div>${canEdit?`<div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-primary" onclick="openEditEvent('${ev.id}')">Редактировать</button><button class="btn" onclick="deleteEvent('${ev.id}')">Удалить</button></div>`:''}`;
+  openModal(html);
+}
+function deleteEvent(evId){ if(!confirm('Удалить событие?')) return; saveEvents(getEvents().filter(x=>x.id!==evId)); closeModal(); renderMySchedulePage(); renderAllSchedulePage(); renderNextEvent(); }
+
+// modal helpers
+const modalRoot = document.getElementById('modalRoot'), modalBox = document.getElementById('modalBox');
+function openModal(html){ modalBox.innerHTML = html; modalRoot.classList.add('show'); modalRoot.style.display='flex'; document.body.style.overflow='hidden'; }
+function closeModal(){ modalRoot.classList.remove('show'); modalRoot.style.display='none'; modalBox.innerHTML=''; document.body.style.overflow='auto'; }
+
+// documents: upload any file(s)
+async function handleFileUpload(e){
+  const files = Array.from(e.target.files || []);
+  if(!files.length) return;
+  const docs = getDocs();
+  for(const f of files){
+    const name = f.name; const type = f.type || 'Other'; const reader = new FileReader();
+    const p = await new Promise((res,rej)=>{ reader.onload = ()=> res(reader.result); reader.onerror=rej; reader.readAsDataURL(f); });
+    docs.push({id:genId(), name, mime:type, dataUrl:p, uploaded:Date.now(), type: classifyFileType(name,type)});
+  }
+  saveDocs(docs); renderDocs(); alert('✅ Файл(ы) успешно загружены'); fileInput.value='';
+}
+
+function classifyFileType(name,mime){
+  const n = name.toLowerCase();
+  if(n.endsWith('.doc')||n.endsWith('.docx')) return 'Word';
+  if(n.endsWith('.xls')||n.endsWith('.xlsx')) return 'Excel';
+  if(n.endsWith('.ppt')||n.endsWith('.pptx')) return 'Presentation';
+  if(n.endsWith('.pdf')) return 'PDF';
+  return 'Other';
+}
+
+function renderDocs(){
+  const all=getDocs(); const f = docFilter.value; docsList.innerHTML='';
+  const shown = all.filter(d=> !f || d.type===f);
+  if(!shown.length) docsList.appendChild(muted('Документы не найдены'));
+  shown.forEach(d=>{
+    const r = document.createElement('div'); r.className='doc-item'; r.style.marginBottom='8px'; r.style.padding='10px'; r.style.borderRadius='10px'; r.style.background='rgba(255,255,255,0.02)'; r.style.display='flex'; r.style.justifyContent='space-between'; r.innerHTML = `<div><div style="font-weight:800">${esc(d.name)}</div><div class="small" style="color:var(--muted)">${esc(d.type)} • ${new Date(d.uploaded).toLocaleString()}</div></div><div><button class="btn" onclick="downloadDoc('${d.id}')">Скачать</button></div>`;
+    docsList.appendChild(r);
+  });
+}
+
+function downloadDoc(id){
+  const d = getDocs().find(x=>x.id===id); if(!d) return alert('Файл не найден');
+  const a = document.createElement('a'); a.href = d.dataUrl; a.download = d.name; document.body.appendChild(a); a.click(); a.remove();
+}
+
+// cabinet
+function renderCabinet(){
+  cabinetContent.innerHTML=''; if(!currentUser){ cabinetContent.appendChild(muted('Гость')); return; }
+  cabinetRole.textContent = currentUser.role; const av=getAvatars(); const img = av[currentUser.id];
+  // update header avatar if not set
+  if(img) headerAvatar.src = img;
+  const container=document.createElement('div'); container.style.display='flex'; container.style.gap='12px';
+  const avatarBox=document.createElement('div'); avatarBox.style.width='84px'; avatarBox.style.height='84px'; avatarBox.style.borderRadius='12px'; avatarBox.style.background='rgba(255,255,255,0.02)';
+  if(img){ const im=document.createElement('img'); im.src=img; im.style.width='84px'; im.style.height='84px'; im.style.borderRadius='12px'; im.style.objectFit='cover'; avatarBox.appendChild(im); }
+  const info=document.createElement('div'); info.innerHTML=`<div style="font-weight:800">${esc(currentUser.display||currentUser.username)}</div><div class="small" style="color:var(--muted)">${esc(currentUser.username)} — ${esc(currentUser.role)}</div>`;
+  container.appendChild(avatarBox); container.appendChild(info); cabinetContent.appendChild(container);
+  const btns=document.createElement('div'); btns.style.marginTop='10px';
+  const editName=document.createElement('button'); editName.className='btn btn-primary'; editName.textContent='Изменить имя'; editName.addEventListener('click', ()=>{ const nv=prompt('Новое имя', currentUser.display||currentUser.username); if(!nv) return; const users=getUsers(); const me=users.find(x=>x.id===currentUser.id); me.display=nv; saveUsers(users); currentUser.display=nv; saveSession(currentUser); renderCabinet(); });
+  const editAvatar=document.createElement('button'); editAvatar.className='btn'; editAvatar.style.marginLeft='8px'; editAvatar.textContent='Загрузить аватар'; editAvatar.addEventListener('click', ()=>{ const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*'; inp.addEventListener('change', async ()=>{ const f=inp.files[0]; if(!f) return; const b=await fileToBase64(f); const avs=getAvatars(); avs[currentUser.id]=b; saveAvatars(avs); headerAvatar.src = b; renderCabinet(); }); inp.click(); });
+  btns.appendChild(editName); btns.appendChild(editAvatar); cabinetContent.appendChild(btns);
+  if(currentUser.role==='Assistant' && currentUser.deputyUsername){ const p=document.createElement('div'); p.className='small'; p.style.marginTop='8px'; p.textContent='Привязан к депутату: '+currentUser.deputyUsername; cabinetContent.appendChild(p); }
+}
+
+// utilities
+function fileToBase64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=err=>rej(err); r.readAsDataURL(file); }); }
+
+// helpers: top date and next event
+function renderTopDate(){ const now=new Date(); topDate.textContent = now.getDate()+' '+now.toLocaleString('ru-RU',{month:'long'})+' '+now.getFullYear(); topWeekday.textContent = now.toLocaleString('ru-RU',{weekday:'long'}); }
+function renderNextEvent(){ const n = computeNextRelevantOccurrence(); if(!n){ nextTitle.textContent='Отсутствует'; lastOpenedEventId = null; return; } nextTitle.textContent = `${n.ev.title} · ${n.ev.start}`; lastOpenedEventId = n.ev.id; }
+
+// boot
+function boot(){ initUI(); adjustContentOffset(); if(getSession()){ currentUser = getSession(); afterLogin(); } setInterval(()=> renderNextEvent(), 30000); }
+boot();
+
+// expose debug helpers
+window._getUsers = getUsers; window._getEvents = getEvents; window._getDocs = getDocs;
+</script>
+</body>
+</html>
